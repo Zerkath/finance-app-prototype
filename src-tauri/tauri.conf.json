@@ -16,7 +16,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Finance",
       "copyright": "",
       "deb": {
         "depends": []
@@ -29,7 +29,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.github.zerkath",
+      "identifier": "com.github.zerkath.finance-prototype",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
