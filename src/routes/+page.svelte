@@ -1,10 +1,11 @@
 <script lang="ts">
 	import List from './List.svelte';
 	import AddExpense from './AddExpense.svelte';
+  import Categories from './Categories.svelte';
 	import ModifyIncome from './ModifyIncome.svelte';
 	import Reports from './Reports.svelte';
 
-	const Pages = ['list', 'reports', 'add expense', 'modify income'] as const;
+	const Pages = ['list', 'reports', 'add expense', 'modify income', 'modify categories'] as const;
 
 	type Page = (typeof Pages)[number];
 
@@ -24,6 +25,8 @@
 	<ModifyIncome />
 {:else if menu === 'reports'}
 	<Reports />
+{:else if menu === 'modify categories'}
+  <Categories />
 {/if}
 
 <style lang="scss">

@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { invoke } from '@tauri-apps/api/tauri';
+	import { onMount } from 'svelte';
+
 	type Expense = {
 		id: number; // unique identifier
 		name: string;
@@ -11,37 +14,41 @@
 		recurEnd?: Date; // optional
 	};
 
-  function toDateString(timestamp: number) {
-    // iso format
-    const date = new Date(timestamp);
-    return date.toISOString().split('T')[0];
-  }
+	let currentPage = 1;
+	let maxPage = 1;
 
-  function fakeDate() {
-    return Date.now() - Math.floor(Math.random() * 100000000000);
-  }
+	onMount(() => {
+		invoke('query_page', {pageSize: 50, currentPage: currentPage}).then((res) => {
+      console.log(res)
+      maxPage = res.total_pages
+      expenses = res.expenses
+		});
+	});
 
-	// generate a list of expenses for mocks
-	const expenses: Expense[] = [
-   { id: 1, name: "Foo", amount: 1, dateCreated: fakeDate(), categories: ["Food"] },
-   { id: 2, name: "Bar", amount: 2, dateCreated: fakeDate(), categories: ["Rent"] },
-   { id: 3, name: "Baz", amount: 3, dateCreated: fakeDate(), categories: ["Food", "Pet"] },
-   { id: 4, name: "Qux", amount: 4, dateCreated: fakeDate(), categories: ["Hobbies"] },
-   { id: 5, name: "Quux", amount: 5, dateCreated: fakeDate(), categories: ["Games"] },
-   { id: 6, name: "Corge", amount: 6, dateCreated: fakeDate(), categories: [] },
-   { id: 7, name: "Grault", amount: 7, dateCreated: fakeDate(), categories: [] },
-   { id: 8, name: "Garply", amount: 8, dateCreated: fakeDate(), categories: [] },
-   { id: 9, name: "Waldo", amount: 9, dateCreated: fakeDate(), categories: [] },
-   { id: 10, name: "Fred", amount: 10, dateCreated: fakeDate(), categories: [] },
-   { id: 11, name: "Plugh", amount: 11, dateCreated: fakeDate(), categories: [] },
-   { id: 12, name: "Xyzzy", amount: 12, dateCreated: fakeDate(), categories: [] },
-   { id: 13, name: "Thud", amount: 13, dateCreated: fakeDate(), categories: [] },
-   { id: 14, name: "Foo", amount: 14, dateCreated: fakeDate(), categories: [] },
-   { id: 15, name: "Bar", amount: 15, dateCreated: fakeDate(), categories: [] },
-   { id: 16, name: "Baz", amount: 16, dateCreated: fakeDate(), categories: [] },
-   { id: 17, name: "Qux", amount: 17, dateCreated: fakeDate(), categories: [] },
-   { id: 18, name: "Quux", amount: 18, dateCreated: fakeDate(), categories: [] },
-  ].sort((a, b) => b.dateCreated - a.dateCreated);
+	function changePage(page: number) {
+		// TODO should change the page
+		// and refetch data
+		currentPage = page;
+		return;
+	}
+
+	function toDateString(timestamp: number) {
+		// iso format
+		const date = new Date(timestamp);
+		return date.toISOString().split('T')[0];
+	}
+
+	function fakeDate() {
+		return Date.now() - Math.floor(Math.random() * 100000000000);
+	}
+
+	// Current view
+	// should be queried from DB
+	// and paginated
+	// and sorted
+	// and filtered
+	// and searchable
+	let expenses: Expense[] = []
 
 	function remove(id: number) {
 		// TODO should remove the entry from DB and refetch data
@@ -71,12 +78,12 @@
 			<tr>
 				<td>{expense.name}</td>
 				<td>{expense.amount}</td>
-        <td>{expense.description ? expense.description : ""}</td>
-        <td>{expense.categories}</td>
-        <td>{expense.link ? expense.link : ""}</td>
-        <td>{toDateString(expense.dateCreated)}</td>
-        <td>{expense.recurType ? expense.recurType : ""}</td>
-        <td>{expense.recurEnd ? expense.recurEnd : ""}</td>
+				<td>{expense.description ? expense.description : ''}</td>
+				<td>{expense.categories}</td>
+				<td>{expense.link ? expense.link : ''}</td>
+				<td>{toDateString(expense.dateCreated)}</td>
+				<td>{expense.recurType ? expense.recurType : ''}</td>
+				<td>{expense.recurEnd ? expense.recurEnd : ''}</td>
 				<td
 					><button on:click={() => remove(expense.id)}>Remove</button><button
 						on:click={() => modify(expense.id)}>Modify</button
@@ -91,7 +98,17 @@
 </div>
 
 <div class="pagenav">
-	<button>Previous Page</button>{'1 / 1'}<button>Next Page</button>
+	{#if currentPage < 2}
+		<button disabled>{'<<'}</button>
+	{:else}
+		<button on:click={() => changePage(currentPage - 1)}>{'<<'}</button>
+	{/if}
+	{`${currentPage}/${maxPage}`}
+  {#if currentPage >= maxPage}
+    <button disabled>{'>>'}</button>
+  {:else}
+    <button on:click={() => changePage(currentPage + 1)}>{'>>'}</button>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -112,9 +129,10 @@
 	.table-nocontent {
 		text-align: center;
 		background: linear-gradient(180deg, #333, #fff);
-		height: 10rem;
-		padding: 1rem;
-		border: 1px solid #000;
+		height: 14rem;
+		padding: 3rem;
+		border: 1px linear-gradient(180deg, #000, #fff);
+		border-bottom: none;
 	}
 
 	td,
