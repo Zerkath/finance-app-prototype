@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { onMount } from 'svelte';
+  
   import CategoryComponent from './CategoryComponent.svelte';
 
 	import type { Category } from '$lib/types.ts';
@@ -13,9 +14,7 @@
 		});
 	};
 
-	onMount(() => {
-		updateCategoriesList();
-	});
+	onMount(updateCategoriesList);
 
 	let categoryLabel = '';
 	const upsertCategory = () => {
@@ -33,6 +32,6 @@
 	<div>Category Label</div>
 	<div>Actions</div>
 	{#each categories as category}
-    <CategoryComponent category={category} />
+    <CategoryComponent on:deleteHook={updateCategoriesList} category={category} />
 	{/each}
 </div>

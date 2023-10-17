@@ -34,6 +34,11 @@ fn get_categories(app_handle: AppHandle) -> Result<Vec<dto::Category>, String> {
 }
 
 #[tauri::command]
+fn delete_category(app_handle: AppHandle, id: i32) -> Result<(), String> {
+    app_handle.db(|db| database_categories::delete_category(db, id)).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn insert_expense(
     app_handle: AppHandle, 
     value: f64, 
@@ -74,6 +79,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       query_tables,
       upsert_category,
+      delete_category,
       insert_expense,
       update_category_label,
       get_categories,

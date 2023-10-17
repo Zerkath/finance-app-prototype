@@ -16,6 +16,17 @@ pub fn upsert_category(db: &Connection, label: &str) -> Result<(), rusqlite::Err
     Ok(())
 }
 
+pub fn delete_category(db: &Connection, id: i32) -> Result<(), rusqlite::Error> {
+    db.execute(
+        "
+        DELETE FROM category WHERE id = (:id);
+        ",
+        named_params! {
+            ":id": id,
+        },
+    )?;
+    Ok(())
+}
 
 pub fn update_category_label(db: &Connection, label: &str, id: i32) -> Result<(), rusqlite::Error> {
     db.execute("UPDATE category SET label = (:label) WHERE id = (:id)",
