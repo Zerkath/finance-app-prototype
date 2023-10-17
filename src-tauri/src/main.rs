@@ -3,8 +3,12 @@
 
 mod database;
 mod state;
+mod database_migrate;
+mod database_expenses;
+mod database_categories;
+mod dto;
 
-use database::{Page};
+use dto::Page;
 
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
@@ -16,7 +20,17 @@ fn query_tables(app_handle: AppHandle) -> Result<Vec<String>, String> {
 
 #[tauri::command]
 fn upsert_category(app_handle: AppHandle, label: String) -> Result<(), String> {
-    app_handle.db(|db| database::upsert_category(db, &label)).map_err(|e| e.to_string())
+    app_handle.db(|db| database_categories::upsert_category(db, &label)).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn update_category_label(app_handle: AppHandle, label: String, id: i32) -> Result<(), String> {
+    app_handle.db(|db| database_categories::update_category_label(db, &label, id)).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_categories(app_handle: AppHandle) -> Result<Vec<dto::Category>, String> {
+    app_handle.db(|db| database_categories::get_categories(db)).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -31,7 +45,7 @@ fn insert_expense(
     recur_end: Option<&str>,
     expense_categories: Vec<i32>,
 ) -> Result<(), String> {
-    app_handle.db(|db| database::insert_expense(
+    app_handle.db(|db| database_expenses::insert_expense(
         db,
         value,
         name,
@@ -50,7 +64,7 @@ fn query_page(
     page_size: i32,
     current_page: i32,
 ) -> Result<Page, String> {
-    app_handle.db(|db| database::query_page(db, page_size, current_page)).map_err(|e| e.to_string())
+    app_handle.db(|db| database_expenses::query_page(db, page_size, current_page)).map_err(|e| e.to_string())
 }
 
 
@@ -61,13 +75,15 @@ fn main() {
       query_tables,
       upsert_category,
       insert_expense,
+      update_category_label,
+      get_categories,
       query_page
     ])
     .setup(|app| {
         let handle = app.handle();
 
         let app_state: State<AppState> = handle.state();
-        let db = database::init_db(&handle).expect("Failed to initialize database");
+        let db = database_migrate::init_db(&handle).expect("Failed to initialize database");
         *app_state.db.lock().unwrap() = Some(db);
         Ok(())
     })
