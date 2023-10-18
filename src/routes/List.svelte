@@ -2,16 +2,18 @@
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { onMount } from 'svelte';
 
+  import type { Category } from '$lib/types.ts';
+
 	type Expense = {
 		id: number; // unique identifier
 		name: string;
-		amount: number; // decimal value most likely
+		value: number; // decimal value most likely
 		description?: string; // optional
-		categories: string[]; // array of strings
+		categories: Category[]; // array of strings
 		link?: string; // optional
-		dateCreated: number; // timestamp
-		recurType?: 'daily' | 'weekly' | 'monthly' | 'yearly'; // optional
-		recurEnd?: Date; // optional
+		date_created: string; // timestamp
+		recur_type?: 'daily' | 'weekly' | 'monthly' | 'yearly'; // optional
+		recur_end?: string | undefined;
 	};
 
 	let currentPage = 1;
@@ -32,22 +34,11 @@
 		return;
 	}
 
-	function toDateString(timestamp: number) {
-		// iso format
-		const date = new Date(timestamp);
-		return date.toISOString().split('T')[0];
-	}
-
-	function fakeDate() {
-		return Date.now() - Math.floor(Math.random() * 100000000000);
-	}
-
 	// Current view
-	// should be queried from DB
-	// and paginated
-	// and sorted
-	// and filtered
-	// and searchable
+  // should be
+	// sorted
+	// filtered
+	// searchable
 	let expenses: Expense[] = []
 
 	function remove(id: number) {
@@ -60,7 +51,7 @@
 		return;
 	}
 </script>
-
+<!-- TODO should be changed to a grid layout -->
 <div class="tableview">
 	<table>
 		<tr>
@@ -77,13 +68,17 @@
 		{#each expenses as expense}
 			<tr>
 				<td>{expense.name}</td>
-				<td>{expense.amount}</td>
+				<td>{expense.value}</td>
 				<td>{expense.description ? expense.description : ''}</td>
-				<td>{expense.categories}</td>
+				<td>
+        {#each expense.categories as category}
+          <span style="padding: 4px; margin: 5px; background: lightgrey; border-radius: 5px;" id={category.id.toString()}>{category.label}</span>
+        {/each}
+        </td>
 				<td>{expense.link ? expense.link : ''}</td>
-				<td>{toDateString(expense.dateCreated)}</td>
-				<td>{expense.recurType ? expense.recurType : ''}</td>
-				<td>{expense.recurEnd ? expense.recurEnd : ''}</td>
+				<td>{expense.date_created}</td>
+				<td>{expense.recur_type ? expense.recur_type : ''}</td>
+				<td>{expense.recur_end ? expense.recur_end : ''}</td>
 				<td
 					><button on:click={() => remove(expense.id)}>Remove</button><button
 						on:click={() => modify(expense.id)}>Modify</button
@@ -112,6 +107,7 @@
 </div>
 
 <style lang="scss">
+
 	// full width table
 	// with visible borders
 	table {
