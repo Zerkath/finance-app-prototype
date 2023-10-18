@@ -5,10 +5,8 @@ use crate::dto::Category;
 pub fn upsert_category(db: &Connection, label: &str) -> Result<(), rusqlite::Error> {
     db.execute(
         "
-        INSERT INTO category (label)
-        VALUES (:label)
-        ON CONFLICT (label) DO NOTHING;
-        ",
+        INSERT OR IGNORE INTO category (label)
+        VALUES (:label);",
         named_params! {
             ":label": label.to_lowercase().trim(),
         },
@@ -29,7 +27,10 @@ pub fn delete_category(db: &Connection, id: i32) -> Result<(), rusqlite::Error> 
 }
 
 pub fn update_category_label(db: &Connection, label: &str, id: i32) -> Result<(), rusqlite::Error> {
-    db.execute("UPDATE category SET label = (:label) WHERE id = (:id)",
+    db.execute(
+        "
+        UPDATE category SET label = (:label) WHERE id = (:id);
+        ",
         named_params! {
             ":label": label.to_lowercase().trim(),
             ":id": id,
@@ -51,4 +52,3 @@ pub fn get_categories(db: &Connection) -> Result<Vec<Category>, rusqlite::Error>
     }
     Ok(items)
 }
-

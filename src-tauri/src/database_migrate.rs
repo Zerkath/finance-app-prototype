@@ -18,11 +18,6 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, rusqlite::Error> {
 pub fn init_tables(db: &mut Connection) -> Result<(), rusqlite::Error> {
     db.execute_batch(
         "
-        -- todo remove the drop statements once ready
-        DROP TABLE IF EXISTS expense_category;
-        DROP TABLE IF EXISTS expense;
-        DROP TABLE IF EXISTS category;
-
         CREATE TABLE IF NOT EXISTS category(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           label TEXT NOT NULL UNIQUE
