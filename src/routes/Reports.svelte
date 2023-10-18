@@ -1,24 +1,50 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
-  import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
-  let name: string[] = [];
+	type Report = {
+		total: number;
+		dates: Map<string, number>;
+	};
 
-  onMount(() => {
-    invoke('query_tables').then((res) => {
-      name = res;
-    });
-  });
+	let reportData: Report = {
+		total: 0,
+		dates: new Map()
+	};
 
-	let tables: string[] = [];
+	let supportedReports: string[] = [];
+	let selectedReportType: string | undefined = undefined;
+	let selectedDate: string = new Date().toISOString().split('T')[0];
 
-  console.log('Querying tables');
+	onMount(() => {
+		invoke('get_supported_report_types').then((res) => {
+			supportedReports = res;
+		});
+	});
 
+	const getReport = () => {
+		if (selectedReportType == undefined) {
+			return;
+		}
+		invoke('get_basic_report', {
+			reportType: selectedReportType,
+			selectedDate: selectedDate
+		}).then((res) => {
+			reportData = res;
+		});
+	};
 </script>
 
-<p>Report View</p>
-<p>Hello {name}!</p>
+<input type="date" bind:value={selectedDate} />
 
-{#each tables as table}
-	<p>{table}</p>
+<select bind:value={selectedReportType}>
+	{#each supportedReports as report}
+		<option value={report}>{report}</option>
+	{/each}
+</select>
+
+<button on:click={getReport}>Get Report</button>
+
+{#each Object.entries(reportData.dates) as [key, value]}
+	<div>{key}: {value}</div>
 {/each}

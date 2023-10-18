@@ -1,14 +1,15 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod database;
 mod state;
 mod database_migrate;
 mod database_expenses;
 mod database_categories;
+mod database_reports;
+mod database_shared;
 mod dto;
 
-use dto::Page;
+use dto::{Page, ReportType};
 
 use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
@@ -16,11 +17,6 @@ use tauri::{State, Manager, AppHandle};
 #[tauri::command]
 fn reset_tables(app_handle: AppHandle) -> Result<(), String> {
     app_handle.db(|db| database_migrate::reset_tables(db)).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-fn query_tables(app_handle: AppHandle) -> Result<Vec<String>, String> {
-    app_handle.db(|db| database::read_tables(db)).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
@@ -73,19 +69,34 @@ fn query_page(
     app_handle.db(|db| database_expenses::query_page(db, page_size, current_page)).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+fn get_supported_report_types(app_handle: AppHandle) -> Result<Vec<ReportType>, ()> {
+    app_handle.db(|_| database_reports::get_supported_report_types())
+}
+
+#[tauri::command]
+fn get_basic_report(
+    app_handle: AppHandle,
+    report_type: ReportType,
+    selected_date: String,
+) -> Result<dto::BasicReport, String> {
+    app_handle.db(|db| database_reports::get_basic_report(db, report_type, selected_date)).map_err(|e| e.to_string())
+}
+
 
 fn main() {
   tauri::Builder::default()
     .manage(AppState { db: Default::default() })
     .invoke_handler(tauri::generate_handler![
-      query_tables,
       upsert_category,
       delete_category,
       insert_expense,
       update_category_label,
       get_categories,
       query_page,
-      reset_tables
+      reset_tables,
+      get_supported_report_types,
+      get_basic_report,
     ])
     .setup(|app| {
         let handle = app.handle();

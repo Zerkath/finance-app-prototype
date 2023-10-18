@@ -12,8 +12,6 @@
 		categories: Category[]; // array of strings
 		link?: string; // optional
 		date_created: string; // timestamp
-		recur_type?: 'daily' | 'weekly' | 'monthly' | 'yearly'; // optional
-		recur_end?: string | undefined;
 	};
 
 	let currentPage = 1;
