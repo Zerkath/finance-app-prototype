@@ -25,6 +25,8 @@
 			updateCategoriesList();
 		});
 	};
+
+  $: categories, console.log(categories);
 </script>
 
 <input bind:value={categoryLabel} /><button on:click={upsertCategory}>Add</button>
@@ -32,6 +34,6 @@
 	<div>Category Label</div>
 	<div>Actions</div>
 	{#each categories as category}
-    <CategoryComponent on:deleteHook={updateCategoriesList} category={category} />
+    <CategoryComponent on:deleteHook={updateCategoriesList} categoryId={category.id} label={category.label} />
 	{/each}
 </div>

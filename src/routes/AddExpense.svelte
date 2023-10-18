@@ -18,10 +18,7 @@
 	let description: string | undefined = undefined;
 	let link: string | undefined = undefined;
 	let dateCreated: string = new Date().toISOString().split("T")[0]
-	let recurType: string | undefined = undefined;
-	let recurEnd: string | undefined = undefined;
 	let expenseCategories: number[] = [];
-
 
   const insertExpense = () => {
     invoke('insert_expense', {
@@ -30,8 +27,6 @@
       description,
       link,
       dateCreated,
-      recurType,
-      recurEnd,
       expenseCategories,
     }).then((res) => {
       console.log(res);
@@ -41,8 +36,6 @@
       description = undefined;
       link = undefined;
       dateCreated = new Date().toISOString().split("T")[0]
-      recurType = undefined;
-      recurEnd = undefined;
       expenseCategories = [];
     });
   };
@@ -55,6 +48,7 @@
   <input type="number" placeholder="Amount" bind:value />
   <input type="text" placeholder="Link" bind:value={link} />
   <input type="date" placeholder="Date" bind:value={dateCreated} />
+  <!--
   <select bind:value={recurType}>
     <option value={undefined}>None</option>
     <option value="daily">Daily</option>
@@ -63,6 +57,7 @@
     <option value="yearly">Yearly</option>
   </select>
   <input type="date" placeholder="Date" bind:value={recurEnd} />
+  -->
   <select multiple bind:value={expenseCategories}>
     {#each categories as category}
       <option value={category.id}>{category.label}</option>
