@@ -1,4 +1,37 @@
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub enum ReportType {
+    MONTH,
+    YEAR
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct BasicReport {
+    pub total: f64,
+    pub dates: HashMap<String, f64>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Report {
+    pub daily_reports: Vec<ReportByDay>,
+    pub overall_report: ReportByCategory,
+    pub total: f64,
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct ReportByDay {
+    pub day: String,
+    pub groups: Vec<ReportByCategory>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct ReportByCategory {
+    pub categories: Vec<Category>,
+    pub total: f64,
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Page {
@@ -20,9 +53,7 @@ pub struct Expense {
     pub description: Option<String>,
     pub link: Option<String>,
     pub date_created: Option<String>,
-    pub categories: Vec<Category>,
-    pub recur_type: Option<String>,
-    pub recur_end: Option<String>,
+    pub categories: Vec<Category>
 }
 
 #[derive(Serialize, Deserialize)]
