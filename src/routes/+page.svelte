@@ -4,8 +4,9 @@
   import Categories from './Categories.svelte';
 	import ModifyIncome from './ModifyIncome.svelte';
 	import Reports from './Reports.svelte';
+  import DangerZone from './DangerZone.svelte';
 
-	const Pages = ['list', 'reports', 'add expense', 'modify income', 'modify categories'] as const;
+	const Pages = ['list', 'reports', 'add expense', 'modify income', 'modify categories', 'DangerZone'] as const;
 
 	type Page = (typeof Pages)[number];
 
@@ -27,6 +28,8 @@
 	<Reports />
 {:else if menu === 'modify categories'}
   <Categories />
+{:else if menu === 'DangerZone'}
+  <DangerZone />
 {/if}
 
 <style lang="scss">
@@ -43,5 +46,8 @@
 		font-family: sans-serif;
 		font-size: 1.5rem;
 		height: 3rem;
+    * {
+      text-transform: capitalize;
+    }
 	}
 </style>

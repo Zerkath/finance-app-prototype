@@ -15,7 +15,7 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, rusqlite::Error> {
     Ok(db)
 }
 
-pub fn init_tables(db: &mut Connection) -> Result<(), rusqlite::Error> {
+pub fn init_tables(db: &Connection) -> Result<(), rusqlite::Error> {
     db.execute_batch(
         "
         CREATE TABLE IF NOT EXISTS category(
@@ -43,5 +43,22 @@ pub fn init_tables(db: &mut Connection) -> Result<(), rusqlite::Error> {
         );
         "
     )?;
+    Ok(())
+}
+
+pub fn drop_tables(db: &Connection) -> Result<(), rusqlite::Error> {
+    db.execute_batch(
+        "
+        DROP TABLE IF EXISTS expense_category;
+        DROP TABLE IF EXISTS expense;
+        DROP TABLE IF EXISTS category;
+        "
+    )?;
+    Ok(())
+}
+
+pub fn reset_tables(db: &Connection) -> Result<(), rusqlite::Error> {
+    drop_tables(db)?;
+    init_tables(db)?;
     Ok(())
 }
