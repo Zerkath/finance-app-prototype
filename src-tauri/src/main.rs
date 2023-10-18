@@ -14,6 +14,11 @@ use state::{AppState, ServiceAccess};
 use tauri::{State, Manager, AppHandle};
 
 #[tauri::command]
+fn reset_tables(app_handle: AppHandle) -> Result<(), String> {
+    app_handle.db(|db| database_migrate::reset_tables(db)).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn query_tables(app_handle: AppHandle) -> Result<Vec<String>, String> {
     app_handle.db(|db| database::read_tables(db)).map_err(|e| e.to_string())
 }
@@ -83,7 +88,8 @@ fn main() {
       insert_expense,
       update_category_label,
       get_categories,
-      query_page
+      query_page,
+      reset_tables
     ])
     .setup(|app| {
         let handle = app.handle();
