@@ -29,9 +29,7 @@ pub fn init_tables(db: &Connection) -> Result<(), rusqlite::Error> {
           name TEXT NOT NULL, -- mandatory name of expense
           description TEXT, -- optional text
           link TEXT, -- optional link
-          date_created TEXT, -- start of recur if type is non null
-          recur_type TEXT, -- governed by business logic
-          recur_end TEXT -- should be ignored after this date, if undefined the recur is still ongoing
+          date_created TEXT -- start of recur if type is non null
         );
 
         CREATE TABLE IF NOT EXISTS expense_category(
@@ -45,6 +43,9 @@ pub fn init_tables(db: &Connection) -> Result<(), rusqlite::Error> {
     )?;
     Ok(())
 }
+
+// recur_type TEXT, -- governed by business logic
+// recur_end TEXT -- should be ignored after this date, if undefined the recur is still ongoing
 
 pub fn drop_tables(db: &Connection) -> Result<(), rusqlite::Error> {
     db.execute_batch(

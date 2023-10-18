@@ -91,8 +91,6 @@ pub fn insert_expense(
     description: Option<&str>,
     link: Option<&str>,
     date_created: Option<&str>,
-    recur_type: Option<&str>,
-    recur_end: Option<&str>,
     expense_categories: Vec<i32>,
 ) -> Result<(), rusqlite::Error> {
 
@@ -103,18 +101,14 @@ pub fn insert_expense(
             name,
             description,
             link,
-            date_created,
-            recur_type,
-            recur_end
+            date_created
         )
         VALUES (
             :value,
             :name,
             :description,
             :link,
-            :date_created,
-            :recur_type,
-            :recur_end
+            :date_created
         )
         ",
         named_params! {
@@ -122,9 +116,7 @@ pub fn insert_expense(
             ":name": name,
             ":description": description,
             ":link": link,
-            ":date_created": date_created,
-            ":recur_type": recur_type,
-            ":recur_end": recur_end,
+            ":date_created": date_created
         },
     )?;
 

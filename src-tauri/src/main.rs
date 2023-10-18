@@ -51,8 +51,6 @@ fn insert_expense(
     description: Option<&str>,
     link: Option<&str>,
     date_created: Option<&str>,
-    recur_type: Option<&str>,
-    recur_end: Option<&str>,
     expense_categories: Vec<i32>,
 ) -> Result<(), String> {
     app_handle.db(|db| database_expenses::insert_expense(
@@ -62,8 +60,6 @@ fn insert_expense(
         description,
         link,
         date_created,
-        recur_type,
-        recur_end,
         expense_categories,
     )).map_err(|e| e.to_string())
 }
