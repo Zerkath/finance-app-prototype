@@ -17,30 +17,27 @@
 	let currentPage = 1;
 	let maxPage = 1;
 
+  const updatePage = () => invoke('query_page', {pageSize: 50, currentPage: currentPage}).then((res) => {
+    maxPage = res.total_pages
+    expenses = res.expenses
+  });
+
 	onMount(() => {
-		invoke('query_page', {pageSize: 50, currentPage: currentPage}).then((res) => {
-      console.log(res)
-      maxPage = res.total_pages
-      expenses = res.expenses
-		});
+    updatePage();
 	});
 
 	function changePage(page: number) {
-		// TODO should change the page
-		// and refetch data
 		currentPage = page;
+    updatePage();
 		return;
 	}
 
-	// Current view
-  // should be
-	// sorted
-	// filtered
-	// searchable
 	let expenses: Expense[] = []
 
 	function remove(id: number) {
-		// TODO should remove the entry from DB and refetch data
+    invoke('delete_expense', {id: id}).then((_) => {
+      updatePage()
+    })
 		return;
 	}
 
@@ -59,8 +56,6 @@
 			<th>Categories</th>
 			<th>Link</th>
 			<th>Date Created</th>
-			<th>Recur Type</th>
-			<th>Recur End</th>
 			<th>Actions</th>
 		</tr>
 		{#each expenses as expense}
@@ -75,10 +70,8 @@
         </td>
 				<td>{expense.link ? expense.link : ''}</td>
 				<td>{expense.date_created}</td>
-				<td>{expense.recur_type ? expense.recur_type : ''}</td>
-				<td>{expense.recur_end ? expense.recur_end : ''}</td>
 				<td
-					><button on:click={() => remove(expense.id)}>Remove</button><button
+					><button on:click={() => remove(expense.id)}>Remove</button><button disabled
 						on:click={() => modify(expense.id)}>Modify</button
 					></td
 				>
