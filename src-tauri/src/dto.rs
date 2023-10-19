@@ -10,7 +10,9 @@ pub enum ReportType {
 #[derive(Serialize, Deserialize)]
 pub struct BasicReport {
     pub total: f64,
+    pub uncategorized: f64,
     pub dates: HashMap<String, f64>,
+    pub categories: HashMap<String, f64>,
 }
 
 #[derive(Serialize, Deserialize)]

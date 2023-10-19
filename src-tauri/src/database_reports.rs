@@ -24,7 +24,7 @@ pub fn get_basic_report(
         _ => panic!("Invalid date format"),
     };
 
-    let mut statement = db.prepare(
+    let mut date_statement = db.prepare(
         "
         SELECT SUM(e.value), e.date_created FROM expense e
         WHERE e.date_created LIKE (:date)
@@ -32,13 +32,13 @@ pub fn get_basic_report(
         ",
     )?;
 
-    let mut rows = statement.query(named_params! {
+    let mut date_rows = date_statement.query(named_params! {
         ":date": date,
     })?;
 
     let mut dates: HashMap<String, f64> = HashMap::new();
 
-    while let Some(row) = rows.next()? {
+    while let Some(row) = date_rows.next()? {
         let sum: f64 = row.get(0)?;
         let date_created: String = row.get(1)?;
         dates.insert(date_created, sum);
@@ -49,9 +49,49 @@ pub fn get_basic_report(
         total += sum;
     }
 
+    let mut categories_statement = db.prepare(
+        "
+        WITH grouped_category AS (
+            SELECT 
+              ec.expense_id as expense_id,
+              group_concat(c.id, ', ') as ids,
+              group_concat(c.label, ', ') as labels
+            FROM category c
+            INNER JOIN expense_category ec ON ec.category_id = c.id
+            GROUP BY ec.expense_id
+        )
+
+        SELECT gc.labels, SUM(e.value)
+        FROM expense e
+        INNER JOIN grouped_category gc ON gc.expense_id = e.id
+        WHERE e.date_created LIKE (:date)
+        GROUP BY e.date_created, gc.labels
+        ",
+    )?;
+
+    let mut categories_rows = categories_statement.query(named_params! {
+        ":date": date,
+    })?;
+
+    let mut categories: HashMap<String, f64> = HashMap::new();
+
+    while let Some(row) = categories_rows.next()? {
+        let labels: String = row.get(0)?;
+        let sum: f64 = row.get(1)?;
+        categories.insert(labels, sum);
+    }
+
+    let mut uncategorized = total;
+
+    for (_, sum) in &categories {
+        uncategorized -= sum;
+    }
+
     let report = BasicReport {
         total,
+        uncategorized,
         dates,
+        categories,
     };
 
     Ok(report)
