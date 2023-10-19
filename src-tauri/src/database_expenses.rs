@@ -105,3 +105,13 @@ pub fn insert_expense(
     Ok(())
 }
 
+pub fn delete_expense(db: &Connection, id: i32) -> Result<(), rusqlite::Error> {
+    db.execute(
+        "DELETE FROM expense WHERE id = :id",
+        named_params! {
+            ":id": id,
+        },
+    )?;
+
+    Ok(())
+}

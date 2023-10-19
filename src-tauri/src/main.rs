@@ -40,6 +40,11 @@ fn delete_category(app_handle: AppHandle, id: i32) -> Result<(), String> {
 }
 
 #[tauri::command]
+fn delete_expense(app_handle: AppHandle, id: i32) -> Result<(), String> {
+    app_handle.db(|db| database_expenses::delete_expense(db, id)).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn insert_expense(
     app_handle: AppHandle, 
     value: f64, 
@@ -90,6 +95,7 @@ fn main() {
     .invoke_handler(tauri::generate_handler![
       upsert_category,
       delete_category,
+      delete_expense,
       insert_expense,
       update_category_label,
       get_categories,
