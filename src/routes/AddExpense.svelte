@@ -14,64 +14,103 @@
 	onMount(updateCategoriesList);
 
 	let value = 0;
-  let name: string = '';
+	let name: string = '';
 	let description: string | undefined = undefined;
 	let link: string | undefined = undefined;
-	let dateCreated: string = new Date().toISOString().split("T")[0]
+	let dateCreated: string = new Date().toISOString().split('T')[0];
 	let expenseCategories: number[] = [];
 
-  const insertExpense = () => {
-    invoke('insert_expense', {
-      value,
-      name,
-      description,
-      link,
-      dateCreated,
-      expenseCategories,
-    }).then((res) => {
-      console.log(res);
+	const insertExpense = () => {
+		invoke('insert_expense', {
+			value,
+			name,
+			description,
+			link,
+			dateCreated,
+			expenseCategories
+		}).then((res) => {
+			console.log(res);
 
-      value = 0;
-      name = '';
-      description = undefined;
-      link = undefined;
-      dateCreated = new Date().toISOString().split("T")[0]
-      expenseCategories = [];
-    });
-  };
+			value = 0;
+			name = '';
+			description = undefined;
+			link = undefined;
+			dateCreated = new Date().toISOString().split('T')[0];
+			expenseCategories = [];
+		});
+	};
+
+	import CategoryComponent from './CategoryComponent.svelte';
+
+	let categoryLabel = '';
+	const upsertCategory = () => {
+		if (categoryLabel == '') {
+			return;
+		}
+		invoke('upsert_category', { label: categoryLabel }).then((res) => {
+			updateCategoriesList();
+		});
+	};
+
+	$: categories, console.log(categories);
 </script>
 
-<div class="expense-form">
+<div class="creation-forms">
+	<div class="expense-form">
+		<h3>Expense Creation Form</h3>
+		<input type="text" placeholder="Name" bind:value={name} />
+		<input type="text" placeholder="Description" bind:value={description} />
+		<input type="number" placeholder="Amount" bind:value />
+		<input type="text" placeholder="Link" bind:value={link} />
+		<input type="date" placeholder="Date" bind:value={dateCreated} />
+		<select multiple bind:value={expenseCategories}>
+			{#each categories as category}
+				<option value={category.id}>{category.label}</option>
+			{/each}
+		</select>
 
-  <input type="text" placeholder="Name" bind:value={name} />
-  <input type="text" placeholder="Description" bind:value={description} />
-  <input type="number" placeholder="Amount" bind:value />
-  <input type="text" placeholder="Link" bind:value={link} />
-  <input type="date" placeholder="Date" bind:value={dateCreated} />
-  <!--
-  <select bind:value={recurType}>
-    <option value={undefined}>None</option>
-    <option value="daily">Daily</option>
-    <option value="weekly">Weekly</option>
-    <option value="monthly">Monthly</option>
-    <option value="yearly">Yearly</option>
-  </select>
-  <input type="date" placeholder="Date" bind:value={recurEnd} />
-  -->
-  <select multiple bind:value={expenseCategories}>
+		<input type="submit" on:click={insertExpense} value="Add Expense" />
+	</div>
+
+	<div class="category-form">
+		<h3>Categories</h3>
+		<input bind:value={categoryLabel} />
+    <button style="margin-bottom: 1rem;"on:click={upsertCategory}>Add</button>
     {#each categories as category}
-      <option value={category.id}>{category.label}</option>
+      <CategoryComponent
+        on:deleteHook={updateCategoriesList}
+        on:updateHook={updateCategoriesList}
+        categoryId={category.id}
+        label={category.label}
+      />
     {/each}
-  </select>
-
-  <input type="submit" on:click={insertExpense} value="Add Expense" />
+	</div>
 </div>
 
 <style lang="scss">
-
-  .expense-form {
-    max-width: 500px;
+  .creation-forms {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: left;
+    > * {
+      min-width: 20rem;
+      margin: 1rem;
+      border: 1px solid black;
+      padding: 1rem;
+    }
   }
+
+  input { 
+    margin: 0.5rem 0;
+  }
+
+	.category-form {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.expense-form {
+		display: flex;
+		flex-direction: column;
+	}
 </style>

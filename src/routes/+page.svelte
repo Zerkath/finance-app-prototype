@@ -1,11 +1,10 @@
 <script lang="ts">
 	import List from './List.svelte';
 	import AddExpense from './AddExpense.svelte';
-  import Categories from './Categories.svelte';
 	import Reports from './Reports.svelte';
   import DangerZone from './DangerZone.svelte';
 
-	const Pages = ['list', 'reports', 'add expense', 'modify categories', 'DangerZone'] as const;
+	const Pages = ['list', 'reports', 'add expense', 'DangerZone'] as const;
 
 	type Page = (typeof Pages)[number];
 
@@ -23,8 +22,6 @@
 	<AddExpense />
 {:else if menu === 'reports'}
 	<Reports />
-{:else if menu === 'modify categories'}
-  <Categories />
 {:else if menu === 'DangerZone'}
   <DangerZone />
 {/if}
