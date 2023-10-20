@@ -4,7 +4,7 @@
 	"private": true,
 	"scripts": {
 		"tauri": "tauri",
-    "test-backend": "cd src-tauri; cargo test",
+    "cargo": "cd src-tauri; cargo",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
