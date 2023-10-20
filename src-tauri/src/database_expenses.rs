@@ -18,8 +18,20 @@ pub fn query_page(
 
     let mut expenses: Vec<Expense> = Vec::new();
 
-    let mut expense_rows_statement =
-        db.prepare("SELECT * FROM expense ORDER BY date_created ASC LIMIT :page_size OFFSET :offset")?;
+    let mut expense_rows_statement = db.prepare(
+        "
+           SELECT
+           id,
+           value,
+           name,
+           description,
+           date_created
+           FROM expense 
+           ORDER BY date_created ASC 
+           LIMIT :page_size 
+           OFFSET :offset
+           ",
+    )?;
 
     let mut expense_rows = expense_rows_statement.query(named_params! {
         ":page_size": page_size,
@@ -31,21 +43,17 @@ pub fn query_page(
     while let Some(row) = expense_rows.next()? {
         let id = row.get(0)?;
 
-        let categories = expense_category_labels
-            .remove(&id)
-            .unwrap_or(Vec::new());
+        let categories = expense_category_labels.remove(&id).unwrap_or(Vec::new());
 
         let expense = Expense {
             id,
             value: row.get(1)?,
             name: row.get(2)?,
             description: row.get(3)?,
-            link: row.get(4)?,
-            date_created: row.get(5)?,
-            categories
+            date_created: row.get(4)?,
+            categories,
         };
         expenses.push(expense);
-        
     }
 
     Ok(Page {
@@ -63,7 +71,6 @@ pub fn insert_expense(
     date_created: Option<&str>,
     expense_categories: Vec<i32>,
 ) -> Result<(), rusqlite::Error> {
-
     db.execute(
         "
         INSERT INTO expense (

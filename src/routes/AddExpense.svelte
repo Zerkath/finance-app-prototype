@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invoke } from '@tauri-apps/api/tauri';
 	import { onMount } from 'svelte';
+	import CategoryComponent from './CategoryComponent.svelte';
 	import type { Category } from '$lib/types.ts';
 
 	let categories: Category[] = [];
@@ -16,7 +17,6 @@
 	let value = 0;
 	let name: string = '';
 	let description: string | undefined = undefined;
-	let link: string | undefined = undefined;
 	let dateCreated: string = new Date().toISOString().split('T')[0];
 	let expenseCategories: number[] = [];
 
@@ -25,7 +25,6 @@
 			value,
 			name,
 			description,
-			link,
 			dateCreated,
 			expenseCategories
 		}).then((res) => {
@@ -34,13 +33,11 @@
 			value = 0;
 			name = '';
 			description = undefined;
-			link = undefined;
 			dateCreated = new Date().toISOString().split('T')[0];
 			expenseCategories = [];
 		});
 	};
 
-	import CategoryComponent from './CategoryComponent.svelte';
 
 	let categoryLabel = '';
 	const upsertCategory = () => {
@@ -61,7 +58,6 @@
 		<input type="text" placeholder="Name" bind:value={name} />
 		<input type="text" placeholder="Description" bind:value={description} />
 		<input type="number" placeholder="Amount" bind:value />
-		<input type="text" placeholder="Link" bind:value={link} />
 		<input type="date" placeholder="Date" bind:value={dateCreated} />
 		<select multiple bind:value={expenseCategories}>
 			{#each categories as category}
