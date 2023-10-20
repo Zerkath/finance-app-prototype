@@ -21,6 +21,12 @@ pub fn init_db(app_handle: &AppHandle) -> Result<Connection, rusqlite::Error> {
     Ok(db)
 }
 
+pub fn init_db_in_memory() -> Result<Connection, rusqlite::Error> {
+    let mut db = Connection::open_in_memory()?;
+    init_tables(&mut db)?;
+    Ok(db)
+}
+
 pub fn init_tables(db: &Connection) -> Result<(), rusqlite::Error> {
     db.execute_batch(
         "
