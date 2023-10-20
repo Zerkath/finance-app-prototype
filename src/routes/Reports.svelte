@@ -104,9 +104,8 @@
 	}
 
 	.block-container {
-		min-width: 50%;
+		width: 50%;
 		outline: 1px solid black;
-		border-radius: 20px;
 		padding: 4px;
 
 		> * {

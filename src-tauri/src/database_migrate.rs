@@ -3,15 +3,21 @@ use std::fs;
 use tauri::AppHandle;
 
 pub fn init_db(app_handle: &AppHandle) -> Result<Connection, rusqlite::Error> {
+
     let app_dir = app_handle
         .path_resolver()
         .app_data_dir()
         .expect("The app data directory should exist.");
+
     println!("App data dir: {:?}", app_dir);
+
     fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
+
     let sqlite_path = app_dir.join("application.db");
     let mut db = Connection::open(sqlite_path)?;
+
     init_tables(&mut db)?;
+
     Ok(db)
 }
 
@@ -28,7 +34,6 @@ pub fn init_tables(db: &Connection) -> Result<(), rusqlite::Error> {
           value REAL NOT NULL, -- monetary value, no currency based on users locale
           name TEXT NOT NULL, -- mandatory name of expense
           description TEXT, -- optional text
-          link TEXT, -- optional link
           date_created TEXT -- start of recur if type is non null
         );
 
@@ -43,9 +48,6 @@ pub fn init_tables(db: &Connection) -> Result<(), rusqlite::Error> {
     )?;
     Ok(())
 }
-
-// recur_type TEXT, -- governed by business logic
-// recur_end TEXT -- should be ignored after this date, if undefined the recur is still ongoing
 
 pub fn drop_tables(db: &Connection) -> Result<(), rusqlite::Error> {
     db.execute_batch(
