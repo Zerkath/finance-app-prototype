@@ -1,13 +1,30 @@
-import { test, describe, expect } from 'vitest';
-
+import { test, describe, expect, beforeAll, } from "vitest";
+import { randomFillSync } from "crypto";
 import { tick } from 'svelte';
-import { waitFor, act, render, fireEvent, screen } from '@testing-library/svelte';
+import { render, fireEvent } from '@testing-library/svelte';
+
+import { mockIPC } from "@tauri-apps/api/mocks";
+
+// jsdom doesn't come with a WebCrypto implementation
+beforeAll(() => {
+  Object.defineProperty(window, 'crypto', {
+    value: {
+      // @ts-ignore      
+      getRandomValues: (buffer) => {
+        return randomFillSync(buffer);
+      },
+    },
+  });
+});
+
 import userEvent from '@testing-library/user-event'
+
 
 import CategoryComponent from './CategoryComponent.svelte';
 
 describe('CategoryComponent should display label provided', async () => {
-  render(CategoryComponent, { label: 'Test', categoryId: 10 });
+
+  const screen = render(CategoryComponent, { label: 'Test', categoryId: 10 });
 
   const editButton = screen.getByTestId('edit-button');
   const deleteButton = screen.getByTestId('delete-button');
@@ -62,4 +79,39 @@ describe('CategoryComponent should display label provided', async () => {
   test('Input should be reset on cancel', () => {
     expect(closedTextField, "The cancel did not update the fields value").toHaveProperty('value', 'Test');
   });
+
+  const expectedId = 10;
+  mockIPC((cmd, args) => {
+    // simulated rust command called "add" that just adds two numbers
+    if (cmd === "update_category_label") {
+      test("The save should pass values to backend", () => {
+        expect(args.id).toBe(expectedId);
+        expect(args.label).toBe("Changed");
+      });
+      return undefined;
+    }
+    else if (cmd === "delete_category") {
+      test("The delete should pass values to backend", () => {
+        expect(args.id).toBe(expectedId);
+      });
+      return undefined;
+    }
+  });
+
+
+  await fireEvent.click(screen.getByTestId('edit-button'));
+
+  await userEvent.type(
+    screen.getByTestId('category-input-open'),
+    '{backspace}{backspace}{backspace}{backspace}Changed'
+  );
+
+  await fireEvent.click(screen.getByTestId('save-button'));
+
+  const inputField = screen.getByTestId('category-input-closed');
+  test("The save did not update the fields value", () => {
+    expect(inputField.value, "The save did not update the fields value").toBe('Changed')
+  });
+
+  await fireEvent.click(screen.getByTestId('delete-button'));
 });
