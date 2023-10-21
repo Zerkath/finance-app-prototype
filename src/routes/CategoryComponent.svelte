@@ -9,19 +9,19 @@
   export let label: string;
 
   let edit = false;
-  let tempLabel = '';
+  let tempLabel = label;
 
   const startEdit = () => {
-    edit = true;
     tempLabel = label;
+    edit = true;
   };
 
   const cancelEdit = () => {
     edit = false;
-    label = tempLabel;
   };
 
   const saveEdit = () => {
+    label = tempLabel;
     edit = false;
     invoke('update_category_label', { label: label, id: categoryId }).then(
       (res) => {
@@ -42,16 +42,16 @@
 
 <div class="category">
   {#if edit}
-    <input bind:value={label} />
+    <input data-testid="category-input-open" bind:value={tempLabel}>
     <div>
-      <button on:click={cancelEdit}>Cancel</button>
-      <button on:click={saveEdit}>Save</button>
+      <button data-testid="cancel-button" on:click={cancelEdit}>Cancel</button>
+      <button data-testid="save-button" on:click={saveEdit}>Save</button>
     </div>
   {:else}
-    <input disabled bind:value={label} />
+    <input data-testid="category-input-closed" disabled bind:value={label} />
     <div>
-      <button on:click={startEdit}>Edit</button>
-      <button on:click={deleteCategory}>Delete</button>
+      <button data-testid="edit-button" on:click={startEdit}>Edit</button>
+      <button data-testid="delete-button" on:click={deleteCategory}>Delete</button>
     </div>
   {/if}
 </div>
