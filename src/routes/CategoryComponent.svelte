@@ -1,57 +1,59 @@
 <script lang="ts">
-	import { invoke } from '@tauri-apps/api/tauri';
+  import { invoke } from '@tauri-apps/api/tauri';
 
-	import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
 
-	const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher();
 
-	export let categoryId: number;
-	export let label: string;
+  export let categoryId: number;
+  export let label: string;
 
-	let edit = false;
-	let tempLabel = '';
+  let edit = false;
+  let tempLabel = '';
 
-	const startEdit = () => {
-		edit = true;
-		tempLabel = label;
-	};
+  const startEdit = () => {
+    edit = true;
+    tempLabel = label;
+  };
 
-	const cancelEdit = () => {
-		edit = false;
-		label = tempLabel;
-	};
+  const cancelEdit = () => {
+    edit = false;
+    label = tempLabel;
+  };
 
-	const saveEdit = () => {
-		edit = false;
-		invoke('update_category_label', { label: label, id: categoryId }).then((res) => {
-			console.log(res);
-		});
+  const saveEdit = () => {
+    edit = false;
+    invoke('update_category_label', { label: label, id: categoryId }).then(
+      (res) => {
+        console.log(res);
+      }
+    );
     dispatch('updateHook');
-	};
+  };
 
-	const deleteCategory = () => {
-		invoke('delete_category', { id: categoryId }).then((res) => {
-			// TODO should propagate to parent component, so it can refresh the list
-			console.log(res);
-		});
-		dispatch('deleteHook');
-	};
+  const deleteCategory = () => {
+    invoke('delete_category', { id: categoryId }).then((res) => {
+      // TODO should propagate to parent component, so it can refresh the list
+      console.log(res);
+    });
+    dispatch('deleteHook');
+  };
 </script>
 
 <div class="category">
-	{#if edit}
-		<input bind:value={label} />
-		<div>
-			<button on:click={cancelEdit}>Cancel</button>
-			<button on:click={saveEdit}>Save</button>
-		</div>
-	{:else}
-		<input disabled bind:value={label} />
-		<div>
-			<button on:click={startEdit}>Edit</button>
-			<button on:click={deleteCategory}>Delete</button>
-		</div>
-	{/if}
+  {#if edit}
+    <input bind:value={label} />
+    <div>
+      <button on:click={cancelEdit}>Cancel</button>
+      <button on:click={saveEdit}>Save</button>
+    </div>
+  {:else}
+    <input disabled bind:value={label} />
+    <div>
+      <button on:click={startEdit}>Edit</button>
+      <button on:click={deleteCategory}>Delete</button>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -63,4 +65,3 @@
     padding: 0.3rem 0;
   }
 </style>
-
