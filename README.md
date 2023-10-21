@@ -1,38 +1,47 @@
-# create-svelte
+# Finance App Prototype
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
 
-## Creating a project
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Technology
 
+The project is powered by [Tauri](https://tauri.app/) + [Svelte](https://svelte.dev/).
+For storing users information Sqlite is being used by the backend code in src-tauri.
+To interface with sqlite, rusqlite is being used.
+
+## Getting started
+
+To start the project in development mode: `npm run tauri dev`
+
+### Testing
+
+#### Backend
+
+To test the rust code, there are some premade npm commands:
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
+# there is a simple command that will cd the shell into src-tauri
+# and run a cargo command
+npm run cargo <any args>
 
-# create a new project in my-app
-npm create svelte@latest my-app
+# more advanced command that will run tests for the rust project
+# and create a report to ./src-tauri/target/coverage/tarpaulin-report.html
+npm run test:backend
+
+# to test frontend
+npm run test:frontend
+
+# to test both
+npm run test
 ```
 
-## Developing
+### Migrations
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+The database is being automatically initialized on startup.
+Currently there is no mechanism for migrations, if needed could be added with [rust-db/refinery](https://github.com/rust-db/refinery)
+The initial prototype version of the application exposes a endpoint to remove the current database tables and reintialize them.
 
 ## Building
 
-To create a production version of your app:
+Simply running `npm run tauri build` will create a binary for the current platform.
 
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+For now, there is no automated step for creating a binary for each major platform (linux, windows, macOS).
+The build has been tested on the following platforms manually [linux(wsl2g), windows]
