@@ -1,6 +1,5 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api/tauri';
-
   import { createEventDispatcher } from 'svelte';
 
   const dispatch = createEventDispatcher();
@@ -11,50 +10,43 @@
   let edit = false;
   let tempLabel = label;
 
-  const startEdit = () => {
-    tempLabel = label;
-    edit = true;
+  const editCancelAction = () => {
+    if (edit) {
+      edit = false;
+    } else {
+      label = tempLabel;
+      edit = true;
+    }
   };
 
-  const cancelEdit = () => {
-    edit = false;
-  };
-
-  const saveEdit = () => {
-    label = tempLabel;
-    edit = false;
-    invoke('update_category_label', { label: label, id: categoryId }).then(
-      (res) => {
-        console.log(res);
-      }
-    );
-    dispatch('updateHook');
-  };
-
-  const deleteCategory = () => {
-    invoke('delete_category', { id: categoryId }).then((res) => {
-      // TODO should propagate to parent component, so it can refresh the list
-      console.log(res);
-    });
-    dispatch('deleteHook');
+  const applyAction = () => {
+    if (edit) {
+      tempLabel = label;
+      edit = false;
+      invoke('update_category_label', { label: label, id: categoryId }).then(
+        () => {
+          dispatch('updateHook');
+        }
+      );
+    } else {
+      invoke('delete_category', { id: categoryId }).then(() => {
+        dispatch('deleteHook');
+      });
+    }
   };
 </script>
 
-<div class="category">
-  {#if edit}
-    <input data-testid="category-input-open" bind:value={tempLabel}>
-    <div>
-      <button data-testid="cancel-button" on:click={cancelEdit}>Cancel</button>
-      <button data-testid="save-button" on:click={saveEdit}>Save</button>
-    </div>
-  {:else}
-    <input data-testid="category-input-closed" disabled bind:value={label} />
-    <div>
-      <button data-testid="edit-button" on:click={startEdit}>Edit</button>
-      <button data-testid="delete-button" on:click={deleteCategory}>Delete</button>
-    </div>
-  {/if}
-</div>
+<section class="category">
+  <input data-testid="category-input" bind:value={label} disabled={!edit} />
+  <section>
+    <button data-testid="category-modify-action" on:click={editCancelAction}
+      >{edit ? 'Cancel' : 'Edit'}</button
+    >
+    <button data-testid="category-apply-action" on:click={applyAction}
+      >{edit ? 'Save' : 'Delete'}</button
+    >
+  </section>
+</section>
 
 <style>
   .category {
