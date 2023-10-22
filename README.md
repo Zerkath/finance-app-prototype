@@ -1,7 +1,5 @@
 # Finance App Prototype
 
-
-
 ## Technology
 
 The project is powered by [Tauri](https://tauri.app/) + [Svelte](https://svelte.dev/).
@@ -17,6 +15,7 @@ To start the project in development mode: `npm run tauri dev`
 #### Backend
 
 To test the rust code, there are some premade npm commands:
+
 ```bash
 # there is a simple command that will cd the shell into src-tauri
 # and run a cargo command
