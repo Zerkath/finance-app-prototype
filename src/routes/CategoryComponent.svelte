@@ -13,8 +13,9 @@
   const editCancelAction = () => {
     if (edit) {
       edit = false;
-    } else {
       label = tempLabel;
+    } else {
+      tempLabel = label;
       edit = true;
     }
   };
