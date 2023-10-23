@@ -51,6 +51,8 @@ test('After clicking edit, should have cancel and save available', async () => {
 
 test('Editing then cancelling should revert back to original value', async () => {
   const { editOrCancelButton, saveOrDeleteButton, textField } = getScreen();
+  expect(textField.disabled).toBe(true);
+  expect(textField.value).toBe('Test');
   await fireEvent.click(editOrCancelButton);
 
   await fireEvent.input(textField, { target: { value: 'Changed' } });
