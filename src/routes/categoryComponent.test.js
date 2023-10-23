@@ -34,14 +34,14 @@ test('Initially should have two buttons available', async () => {
 });
 
 test('Should disable textfield', async () => {
-  const { editOrCancelButton, saveOrDeleteButton, textField } = getScreen();
+  const { textField } = getScreen();
 
   expect(textField.disabled).toBe(true);
   expect(textField.value).toBe('Test');
 });
 
 test('After clicking edit, should have cancel and save available', async () => {
-  const { editOrCancelButton, saveOrDeleteButton, textField } = getScreen();
+  const { editOrCancelButton, saveOrDeleteButton } = getScreen();
 
   await fireEvent.click(editOrCancelButton);
 
@@ -67,8 +67,9 @@ test('Editing then cancelling should revert back to original value', async () =>
   expect(editOrCancelButton.textContent).toBe('Edit');
   expect(saveOrDeleteButton.textContent).toBe('Delete');
   expect(textField.disabled).toBe(true);
-  // expect(textField.value, "The cancel did not update the fields value").toBe("Test");
-  // something wrong with this test, it does not pass, though in the application it works as expected
+  expect(textField.value, 'The cancel did not update the fields value').toBe(
+    'Test'
+  );
 });
 
 const expectedId = 10;
