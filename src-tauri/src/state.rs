@@ -1,3 +1,4 @@
+// Sourced from https://github.com/RandomEngy/tauri-sqlite/blob/2fa834ff8dffa299f06512bac34884dd2a77f7f2/src-tauri/src/state.rs
 use rusqlite::Connection;
 use tauri::{AppHandle, State, Manager};
 
