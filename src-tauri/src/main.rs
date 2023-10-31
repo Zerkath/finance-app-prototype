@@ -14,6 +14,8 @@ use dto::{Page, ReportType};
 use state::{AppState, ServiceAccess};
 use tauri::{AppHandle, Manager, State};
 
+use rusqlite::Connection;
+
 #[tauri::command]
 fn reset_tables(app_handle: AppHandle) -> Result<(), String> {
     app_handle
@@ -135,7 +137,14 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
+
+    fn init_db_in_memory() -> Result<Connection, rusqlite::Error> {
+        let mut db = Connection::open_in_memory()?;
+        database_migrate::init_tables(&mut db)?;
+        Ok(db)
+    }
 
     #[test]
     fn verify_supported_api() -> Result<(), ()> {
@@ -152,7 +161,7 @@ mod tests {
     #[test]
     fn verify_basic_report_initial_state() -> Result<(), String> {
 
-        let mut db = database_migrate::init_db_in_memory().map_err(|e| e.to_string())?;
+        let mut db = init_db_in_memory().map_err(|e| e.to_string())?;
 
         let report = database_reports::get_basic_report(
             &mut db,
